@@ -2,7 +2,9 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from .models import Canvas
+
+from user.models import User
+from .models import Canvas, CanvasMember
 from .serializers import CanvasSerializer
 
 class CanvasCreateView(APIView):
@@ -40,3 +42,41 @@ class CanvasUpdateDeleteView(APIView):
             return Response({"message": "캔버스 삭제 성공하였습니다."},status = status.HTTP_200_OK)
         except Canvas.DoesNotExist:
             return Response({"message": "캔버스 삭제 실패하였습니다."},status = status.HTTP_404_NOT_FOUND)
+
+
+class MemberInvite(APIView):
+
+    def post(self, request, canvas_id):
+
+        user_email = request.data.get('user_email')
+
+        try:
+            user = User.objects.get(user_email=user_email)
+        except User.DoesNotExist:
+            return Response({'message': '해당 유저가 존재하지 않습니다.',
+                            'result': None}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            canvas = Canvas.objects.get(pk=canvas_id)
+        except Canvas.DoesNotExist:
+            return Response({'message': '해당 캔버스가 존재하지 않습니다.',
+                            'result': None}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            CanvasMember.objects.get(member_id=user.id)
+        except CanvasMember.DoesNotExist:
+            canvasmember = CanvasMember(
+                canvas_id=canvas,
+                member_id=user.id,
+                created_at=timezone.now(),
+                updated_at=timezone.now(),
+                deleted_at=None
+            )
+            canvasmember.save()
+
+            return Response({'message': "친구 초대 성공",
+                                 'result': {
+                                     'user_email': user.user_name}}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': '친구 초대에 실패했습니다.',
+                                 'result': None}, status=status.HTTP_404_NOT_FOUND)
+
