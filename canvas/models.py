@@ -10,3 +10,10 @@ class Canvas(models.Model):
 
     def __str__(self):
         return self.canvas_name
+
+class CanvasMember(models.Model):
+    canvas_id = models.ForeignKey(Canvas, on_delete=models.CASCADE, db_column='canvas_id')
+    member_id = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(blank=True, null=True)
