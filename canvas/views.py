@@ -1,7 +1,9 @@
+from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import CanvasSerializer
 from rest_framework import status
+from .models import Canvas
+from .serializers import CanvasSerializer
 
 class CanvasCreateView(APIView):
     def post(self, request, *args, **kwargs):
@@ -15,3 +17,17 @@ class CanvasCreateView(APIView):
                     "canvas_id": canvas.id
                 }, status = status.HTTP_201_CREATED)
         return Response({"message": "캔버스 생성 실패했습니다."}, status = status.HTTP_404_NOT_FOUND)
+
+class CanvasUpdateView(APIView):
+
+    def put(self, request, canvas_id, *args, **kwargs):
+        canvas_name= request.data.get("canvas_name")
+
+        try:
+            canvas = Canvas.objects.get(id=canvas_id)
+            canvas.canvas_name = canvas_name
+            canvas.updated_at= timezone.now()
+            canvas.save()
+            return Response({"message": "캔버스 이름 수정 성공하였습니다."},status = status.HTTP_200_OK)
+        except Canvas.DoesNotExist:
+            return Response({"message": "캔버스 이름 수정 실패하였습니다."},status = status.HTTP_404_NOT_FOUND)
