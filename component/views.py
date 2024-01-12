@@ -9,7 +9,7 @@ import io
 import requests
 import datetime
 from .nukki import remove_background
-from .serializers import BackgroundUploadSerializer
+from .serializers import ComponentSerializer
 from .serializers import TextUploadSerializer
 
 class BackgroundUploadView(APIView):
@@ -76,7 +76,7 @@ class BackgroundUploadView(APIView):
                     "result": None
                 }, status=status.HTTP_404_NOT_FOUND)
 
-            serializer = BackgroundUploadSerializer(background_components, many=True)
+            serializer = ComponentSerializer(background_components, many=True)
             return Response({
                 "message": "직접 업로드한 배경 조회 성공",
                 "result": {"component": serializer.data}
@@ -246,6 +246,36 @@ class StickerSelectView(APIView):
                 "message": "존재하지 않는 캔버스 ID입니다.",
                 "result": None
             }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def get(self, request, canvas_id, *args, **kwargs):
+        try:
+            canvas_exists = Canvas.objects.filter(id=canvas_id).exists()
+            if not canvas_exists:
+                return Response({
+                    "message": "존재하지 않는 캔버스 ID입니다.",
+                    "result": None
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            ai_stickers = Component.objects.filter(
+                canvas_id=canvas_id,
+                component_type='Sticker',
+                component_source='AI'
+            )
+
+            if not ai_stickers:
+                return Response({
+                    "message": "이 캔버스에 AI 생성된 스티커가 없습니다.",
+                    "result": None
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            serializer = ComponentSerializer(ai_stickers, many=True)
+            return Response({
+                "message": "AI 생성한 스티커 조회 성공",
+                "result": {"component": serializer.data}
+            }, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
