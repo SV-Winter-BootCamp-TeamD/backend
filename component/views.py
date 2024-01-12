@@ -9,6 +9,8 @@ import io
 import requests
 import datetime
 from .nukki import remove_background
+from .serializers import TextUploadSerializer
+
 
 class BackgroundUploadView(APIView):
     def post(self, request, canvas_id, *args, **kwargs):
@@ -138,3 +140,42 @@ class StickerAIView(APIView):
             }, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class TextUploadView(APIView):
+    def post(self, request, canvas_id, *args, **kwargs):
+
+        try:
+            canvas = Canvas.objects.get(pk=canvas_id)
+        except Canvas.DoesNotExist:
+            return Response({"message": "캔버스가 존재하지 않습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+        text = request.data.get('component_url')
+        component_type = request.data.get('component_type', 'Text')
+        component_source = request.data.get('component_source', 'Upload')
+
+        TextComponent = Component(canvas_id=canvas,
+                                  component_type=component_type,
+                                  component_source=component_source,
+                                  component_url=text,
+                                  position_x=0.0,
+                                  position_y=0.0,
+                            )
+
+        serializer = TextUploadSerializer(TextComponent, data=request.data)
+        if serializer.is_valid():
+            TextComponent.save()
+            return Response({"message": "직접 텍스트 업로드 성공",
+                                    "result": {
+                                        "component": {
+                                            "component_id": TextComponent.id,
+                                            "component_type" : component_type,
+                                            "component_source": component_source,
+                                            "component_url": TextComponent.component_url
+                                            }
+                                        }
+                                    }, status=status.HTTP_204_NO_CONTENT)
+
+        return Response({"message": "텍스트 업로드에 실패했습니다.",
+                                "result": None
+                         }, status=status.HTTP_404_NOT_FOUND)
