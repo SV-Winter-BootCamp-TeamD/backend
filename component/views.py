@@ -9,8 +9,8 @@ import io
 import requests
 import datetime
 from .nukki import remove_background
+from .serializers import BackgroundUploadSerializer
 from .serializers import TextUploadSerializer
-
 
 class BackgroundUploadView(APIView):
     def post(self, request, canvas_id, *args, **kwargs):
@@ -54,6 +54,35 @@ class BackgroundUploadView(APIView):
                 "message": "존재하지 않는 캔버스 ID입니다.",
                 "result": None
             }, status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, canvas_id, *args, **kwargs):
+        try:
+            canvas_exists = Canvas.objects.filter(id=canvas_id).exists()
+            if not canvas_exists:
+                return Response({
+                    "message": "존재하지 않는 캔버스 ID입니다.",
+                    "result": None
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            background_components = Component.objects.filter(
+                canvas_id=canvas_id,
+                component_type='Background',
+                component_source='Upload'
+            )
+
+            if not background_components:
+                return Response({
+                    "message": "이 캔버스에 업로드된 배경이 없습니다.",
+                    "result": None
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            serializer = BackgroundUploadSerializer(background_components, many=True)
+            return Response({
+                "message": "직접 업로드한 배경 조회 성공",
+                "result": {"component": serializer.data}
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BackgroundAIView(APIView):
     def post(self, request, canvas_id, *args, **kwargs):
