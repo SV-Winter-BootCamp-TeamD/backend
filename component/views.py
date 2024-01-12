@@ -8,6 +8,7 @@ from .AI_utils import generate_image
 import io
 import requests
 import datetime
+from .nukki import remove_background
 
 class BackgroundUploadView(APIView):
     def post(self, request, canvas_id, *args, **kwargs):
@@ -82,6 +83,49 @@ class BackgroundAIView(APIView):
 
             return Response({
                 "message": "AI 배경 3개 생성 및 S3 버킷 업로드 성공",
+                "canvas_id": canvas_id,
+                "result": {
+                    "s3_urls": s3_urls
+                }
+            }, status=status.HTTP_201_CREATED)
+        except Canvas.DoesNotExist:
+            return Response({
+                "message": "존재하지 않는 캔버스 ID입니다.",
+                "result": None
+            }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class StickerAIView(APIView):
+    def post(self, request, canvas_id, *args, **kwargs):
+        try:
+            canvas = Canvas.objects.get(id=canvas_id)
+            describe = request.data.get('describe')
+            style = request.data.get('style')
+
+            if not all([describe, style]):
+                return Response({"message": "스티커 묘사, 스타일은 모두 필수입니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+            prompt = f"{style} 스타일로 {describe} 이미지를 생성합니다."
+
+            image_type = request.data.get('image_type', 'Sticker')
+            image_count = int(request.data.get('image_count', 4))
+
+            images_urls = generate_image(prompt, image_count, image_type)
+            s3_urls = []
+
+            for image_url in images_urls:
+                processed_image_url = remove_background(image_url)
+
+                timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
+                file_name = f"{canvas_id}_{timestamp}.png"
+                key = f"{canvas_id}/sticker/{file_name}"
+                ExtraArgs = {'ContentType': 'image/png'}
+                s3_url = upload_file_to_s3(processed_image_url, key, ExtraArgs)
+                s3_urls.append(s3_url)
+
+            return Response({
+                "message": "AI 스티커 4개 생성 및 S3 버킷 업로드 성공",
                 "canvas_id": canvas_id,
                 "result": {
                     "s3_urls": s3_urls
