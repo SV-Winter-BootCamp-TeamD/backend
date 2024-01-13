@@ -11,6 +11,8 @@ import datetime
 from .nukki import remove_background
 from .serializers import ComponentSerializer
 from .serializers import TextUploadSerializer
+import random
+from .recommend import search_pixabay_images
 
 class BackgroundUploadView(APIView):
     def post(self, request, canvas_id, *args, **kwargs):
@@ -329,3 +331,28 @@ class ComponentDeleteView(APIView):
             return Response({"message": "요소 삭제에 실패했습니다.",
                              "result": None}, status=status.HTTP_404_NOT_FOUND)
 
+class BackgroundRecommendView(APIView):
+    def get(self, request, *args, **kwargs):
+        images_urls = []
+        all_keywords = ['nature', 'city', 'ocean', 'forest', 'mountains', 'animals', 'space',
+                        'cars', 'seasons', 'house', 'room', 'factory', 'daily', 'cafe',
+                        'comfortable', 'christmas', 'furniture', 'library', 'color', 'animation']
+
+        for _ in range(10):
+            random_keyword = random.choice(all_keywords)
+            image_results = search_pixabay_images(random_keyword)
+
+            if image_results and image_results['hits']:
+                images_urls.append(image_results['hits'][0]['largeImageURL'])
+                all_keywords.remove(random_keyword)
+
+        if images_urls:
+            return Response({
+                "message": "배경 추천 성공",
+                "results": images_urls
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "message": "배경 추천 실패",
+                "result": None
+            }, status=status.HTTP_404_NOT_FOUND)
