@@ -85,21 +85,27 @@ class MemberInvite(APIView):
 class CanvasSaveView(APIView):
     def put(self, request, canvas_id):
 
-        component_id = request.data.get('component_id')
-        position_x = request.data.get('position_x')
-        position_y = request.data.get('position_y')
-        canvas_preview_url = request.data.get('canvas_preview_url')
+        components = request.data.get('components', [])
 
-        try:
-            component = Component.objects.get(pk=component_id)
-            component.position_x = position_x
-            component.position_y = position_y
-            component.save()
-        except Component.DoesNotExist:
-            return Response({
-                'message': '해당 요소를 찾을 수 없습니다.',
-                'result': None
-            }, status=status.HTTP_404_NOT_FOUND)
+        for component_data in components:
+            component_id = component_data.get('component_id')
+            position_x = component_data.get('position_x')
+            position_y = component_data.get('position_y')
+
+            try:
+                component = Component.objects.get(pk=component_id)
+                if component.canvas_id.pk != canvas_id:
+                    return Response({"message": "해당 요소를 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+                component.position_x = position_x
+                component.position_y = position_y
+                component.save()
+            except Component.DoesNotExist:
+                return Response({'message': '해당 요소를 찾을 수 없습니다.',
+                                        'result': None
+                                    }, status=status.HTTP_404_NOT_FOUND)
+
+        canvas_preview_url = request.data.get('canvas_preview_url')
 
         try:
             canvas = Canvas.objects.get(pk=canvas_id)
@@ -108,7 +114,7 @@ class CanvasSaveView(APIView):
             return Response({"message": "캔버스 저장 성공"}, status=status.HTTP_204_NO_CONTENT)
         except Canvas.DoesNotExist:
             return Response({"message": "캔버스 저장에 실패했습니다.",
-                             "result": None}, status=status.HTTP_404_NOT_FOUND)
+                                    "result": None}, status=status.HTTP_404_NOT_FOUND)
 
 
 
