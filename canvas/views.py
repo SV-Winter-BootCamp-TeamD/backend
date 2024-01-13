@@ -3,9 +3,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
+from component.models import Component
 from user.models import User
 from .models import Canvas, CanvasMember
 from .serializers import CanvasSerializer
+
 
 class CanvasCreateView(APIView):
     def post(self, request, *args, **kwargs):
@@ -79,4 +81,41 @@ class MemberInvite(APIView):
                                      'user_email': user.user_name}}, status=status.HTTP_204_NO_CONTENT)
         return Response({'message': '친구 초대에 실패했습니다.',
                                  'result': None}, status=status.HTTP_404_NOT_FOUND)
+
+class CanvasSaveView(APIView):
+    def put(self, request, canvas_id):
+
+        components = request.data.get('components', [])
+
+        for component_data in components:
+            component_id = component_data.get('component_id')
+            position_x = component_data.get('position_x')
+            position_y = component_data.get('position_y')
+
+            try:
+                component = Component.objects.get(pk=component_id)
+                if component.canvas_id.pk != canvas_id:
+                    return Response({"message": "해당 요소를 찾을 수 없습니다."}, status=status.HTTP_404_NOT_FOUND)
+
+                component.position_x = position_x
+                component.position_y = position_y
+                component.save()
+            except Component.DoesNotExist:
+                return Response({'message': '해당 요소를 찾을 수 없습니다.',
+                                        'result': None
+                                    }, status=status.HTTP_404_NOT_FOUND)
+
+        canvas_preview_url = request.data.get('canvas_preview_url')
+
+        try:
+            canvas = Canvas.objects.get(pk=canvas_id)
+            canvas.canvas_preview_url = canvas_preview_url
+            canvas.save()
+            return Response({"message": "캔버스 저장 성공"}, status=status.HTTP_204_NO_CONTENT)
+        except Canvas.DoesNotExist:
+            return Response({"message": "캔버스 저장에 실패했습니다.",
+                                    "result": None}, status=status.HTTP_404_NOT_FOUND)
+
+
+
 
