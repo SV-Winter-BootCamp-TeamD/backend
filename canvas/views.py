@@ -163,7 +163,7 @@ class CanvasDetailSearchView(APIView):
     def get(self, request, canvas_id):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
-            components = Component.objects.filter(canvas_id=canvas_id).values('component_url', 'position_x', 'position_y')
+            components = Component.objects.filter(canvas_id=canvas_id).values('component_url', 'position_x', 'position_y', 'width', 'height')
 
             shared_members = []
             if CanvasMember.objects.filter(canvas_id=canvas_id).exists():
