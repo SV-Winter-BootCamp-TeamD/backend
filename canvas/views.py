@@ -6,8 +6,7 @@ from rest_framework import status
 from component.models import Component
 from user.models import User
 from .models import Canvas, CanvasMember
-from .serializers import CanvasSerializer, CanvasPersonalListSerializer
-
+from .serializers import CanvasSerializer
 
 class CanvasCreateView(APIView):
     def post(self, request, *args, **kwargs):
@@ -116,7 +115,6 @@ class CanvasSaveView(APIView):
 class CanvasPersonalListView(APIView):
     def get(self, request, user_id):
         canvases = Canvas.objects.filter(owner_id=user_id)
-        serializer = CanvasPersonalListSerializer(canvases, many=True)
 
         canvas_list = []
         for canvas in canvases:
