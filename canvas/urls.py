@@ -15,5 +15,6 @@ urlpatterns = [
     path('<int:canvas_id>/stickers/ai/select/', StickerSelectView.as_view(), name='sticker-ai-select'),
     path('<int:canvas_id>/<int:component_id>/', ComponentDeleteView.as_view(), name='component-delete'),
     path('<int:canvas_id>/save/', CanvasSaveView.as_view(), name='canvas-save'),
+    path('<int:canvas_id>/backgrounds/recommend/', BackgroundRecommendView.as_view(), name='background-recommend'),
     path('personal/<int:user_id>/', CanvasPersonalListView.as_view(), name='canvas-list')
 ]
