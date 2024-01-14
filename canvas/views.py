@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,7 +8,6 @@ from component.models import Component
 from user.models import User
 from .models import Canvas, CanvasMember
 from .serializers import CanvasSerializer
-
 
 class CanvasCreateView(APIView):
     def post(self, request, *args, **kwargs):
