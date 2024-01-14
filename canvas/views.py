@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -44,7 +43,6 @@ class CanvasUpdateDeleteView(APIView):
             return Response({"message": "캔버스 삭제 성공하였습니다."},status = status.HTTP_200_OK)
         except Canvas.DoesNotExist:
             return Response({"message": "캔버스 삭제 실패하였습니다."},status = status.HTTP_404_NOT_FOUND)
-
 
 class MemberInviteView(APIView):
 

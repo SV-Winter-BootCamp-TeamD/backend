@@ -24,7 +24,6 @@ class CanvasConsumer(AsyncWebsocketConsumer):
         position_x = text_data_json['position_x']
         position_y = text_data_json['position_y']
 
-        print(text_data_json)
         canvas_id = self.scope["url_route"]["kwargs"]["canvas_id"]
 
         ## 유저 인증 로직
@@ -49,8 +48,8 @@ class CanvasConsumer(AsyncWebsocketConsumer):
             )
         else:
             print("해당 유저가 없습니다.")
-            # await self.channel_layer.group_discard(self.canvas_group_id, self.channel_name)
-            # self.close();
+            await self.channel_layer.group_discard(self.canvas_group_id, self.channel_name)
+            self.close();
 
     async def canvas_message(self, event):
         user_id = event['user_id']
