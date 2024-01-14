@@ -45,7 +45,6 @@ class CanvasUpdateDeleteView(APIView):
         except Canvas.DoesNotExist:
             return Response({"message": "캔버스 삭제 실패하였습니다."},status = status.HTTP_404_NOT_FOUND)
 
-
 class MemberInviteView(APIView):
 
     def post(self, request, canvas_id):
