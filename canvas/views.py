@@ -134,3 +134,25 @@ class CanvasPersonalListView(APIView):
                 "canvases": canvas_list
             }
         }, status=status.HTTP_200_OK)
+
+class CanvasShareListView(APIView):
+    def get(self, request, user_id):
+        canvases = CanvasMember.objects.filter(member_id=user_id).values_list('canvas_id', flat=True)
+        shared_canvases = Canvas.objects.filter(id__in=canvases)
+
+        canvas_list = []
+        for canvas in shared_canvases:
+            canvas_data = {
+                "canvas_id": canvas.id,
+                "canvas_preview_url": canvas.canvas_preview_url,
+                "canvas_name": canvas.canvas_name,
+                "update_at": canvas.updated_at,
+            }
+            canvas_list.append(canvas_data)
+
+        return Response({
+            "message": "공유 캔버스 전체 조회 성공",
+            "result": {
+                "canvases": canvas_list
+            }
+        }, status=status.HTTP_200_OK)
