@@ -8,6 +8,7 @@ from user.models import User
 from .models import Canvas, CanvasMember
 from .serializers import CanvasSerializer, CanvasPersonalListSerializer
 
+
 class CanvasCreateView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = CanvasSerializer(data=request.data)
@@ -156,3 +157,34 @@ class CanvasShareListView(APIView):
                 "canvases": canvas_list
             }
         }, status=status.HTTP_200_OK)
+
+class CanvasDetailSearchView(APIView):
+    def get(self, request, canvas_id):
+        try:
+            canvas = Canvas.objects.get(id=canvas_id)
+            components = Component.objects.filter(canvas_id=canvas_id).values('component_url', 'position_x', 'position_y')
+
+            shared_members = []
+            if CanvasMember.objects.filter(canvas_id=canvas_id).exists():
+                members = CanvasMember.objects.filter(canvas_id=canvas_id).values('member_id', 'created_at', 'updated_at')
+                for member in members:
+                    user = User.objects.get(id=member['member_id'])
+                    shared_members.append({
+                        'member_id': member['member_id'],
+                        'user_name': user.user_name
+                    })
+
+            response_data = {
+                'components': components,
+                'shared_members': shared_members,
+            }
+
+            return Response({
+                'message': '캔버스 상세 조회 성공했습니다.',
+                'result': response_data
+            },status=status.HTTP_200_OK)
+        except Canvas.DoesNotExist:
+            return Response({
+                'message': '캔버스 상세 조회 실패했습니다',
+                'result': None
+            },status=status.HTTP_404_NOT_FOUND)

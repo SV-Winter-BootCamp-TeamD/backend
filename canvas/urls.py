@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CanvasCreateView, CanvasUpdateDeleteView, MemberInviteView, CanvasSaveView, CanvasPersonalListView, CanvasShareListView
+from .views import CanvasCreateView, CanvasUpdateDeleteView, MemberInviteView, CanvasSaveView, CanvasPersonalListView, CanvasShareListView, CanvasDetailSearchView
 from component.views import BackgroundUploadView, BackgroundAIView, BackgroundSelectView, StickerAIView, StickerSelectView, TextUploadView, ComponentDeleteView, BackgroundRecommendView
 
 
@@ -17,5 +17,6 @@ urlpatterns = [
     path('<int:canvas_id>/save/', CanvasSaveView.as_view(), name='canvas-save'),
     path('<int:canvas_id>/backgrounds/recommend/', BackgroundRecommendView.as_view(), name='background-recommend'),
     path('personal/<int:user_id>/', CanvasPersonalListView.as_view(), name='canvas-list'),
-    path('share/<int:user_id>/', CanvasShareListView.as_view(), name='canvas-share-lists')
+    path('share/<int:user_id>/', CanvasShareListView.as_view(), name='canvas-share-lists'),
+    path('detail/<int:canvas_id>/', CanvasDetailSearchView.as_view(), name='canvas-detail-search')
 ]
