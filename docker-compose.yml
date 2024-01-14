@@ -21,6 +21,7 @@ services:
       - .:/app
     depends_on:
       - database
+      - redis
     command: >
       sh -c "sleep 10 &&
             python manage.py migrate &&
@@ -29,6 +30,12 @@ services:
     networks:
       - teamd
 
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    networks:
+          - teamd
 networks:
   teamd:
     driver: bridge
