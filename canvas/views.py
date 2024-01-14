@@ -88,6 +88,8 @@ class CanvasSaveView(APIView):
             component_id = component_data.get('component_id')
             position_x = component_data.get('position_x')
             position_y = component_data.get('position_y')
+            width = component_data.get('width')
+            height = component_data.get('height')
 
             try:
                 component = Component.objects.get(pk=component_id)
@@ -96,6 +98,8 @@ class CanvasSaveView(APIView):
 
                 component.position_x = position_x
                 component.position_y = position_y
+                component.width = width
+                component.height = height
                 component.save()
             except Component.DoesNotExist:
                 return Response({'message': '해당 요소를 찾을 수 없습니다.',

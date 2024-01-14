@@ -18,6 +18,8 @@ class Component(models.Model):
     component_url = models.CharField(max_length=500)
     position_x = models.FloatField()
     position_y = models.FloatField()
+    width = models.IntegerField(default=100)
+    height = models.IntegerField(default=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
