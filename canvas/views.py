@@ -45,7 +45,7 @@ class CanvasUpdateDeleteView(APIView):
             return Response({"message": "캔버스 삭제 실패하였습니다."},status = status.HTTP_404_NOT_FOUND)
 
 
-class MemberInvite(APIView):
+class MemberInviteView(APIView):
 
     def post(self, request, canvas_id):
 
@@ -64,7 +64,7 @@ class MemberInvite(APIView):
                             'result': None}, status=status.HTTP_404_NOT_FOUND)
 
         try:
-            CanvasMember.objects.get(member_id=user.id)
+            CanvasMember.objects.get(canvas_id=canvas_id, member_id=user.id)
         except CanvasMember.DoesNotExist:
             canvasmember = CanvasMember(
                 canvas_id=canvas,
