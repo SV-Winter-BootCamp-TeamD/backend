@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from .consumers import CanvasConsumer
 from .views import CanvasCreateView, CanvasUpdateDeleteView, MemberInviteView, CanvasSaveView, CanvasPersonalListView, CanvasShareListView
 from component.views import BackgroundUploadView, BackgroundAIView, BackgroundSelectView, StickerAIView, StickerSelectView, TextUploadView, ComponentDeleteView, BackgroundRecommendView
@@ -6,6 +6,7 @@ from component.views import BackgroundUploadView, BackgroundAIView, BackgroundSe
 urlpatterns = [
     path('', CanvasCreateView.as_view(), name='create-canvas'),
     path('<int:canvas_id>/', CanvasUpdateDeleteView.as_view(), name='update/delete-canvas'),
+    re_path(r'ws/canvases/(?P<canvas_id>\w+)/$', CanvasConsumer.as_asgi(), name='canvas-edit'),
     path('<int:canvas_id>/invite/', MemberInviteView.as_view(), name='invite-canvas'),
     path('<int:canvas_id>/backgrounds/upload/', BackgroundUploadView.as_view(), name='background-upload'),
     path('<int:canvas_id>/texts/upload/', TextUploadView.as_view(), name='text-upload'),
@@ -18,8 +19,4 @@ urlpatterns = [
     path('<int:canvas_id>/backgrounds/recommend/', BackgroundRecommendView.as_view(), name='background-recommend'),
     path('personal/<int:user_id>/', CanvasPersonalListView.as_view(), name='canvas-list'),
     path('share/<int:user_id>/', CanvasShareListView.as_view(), name='canvas-share-lists')
-]
-
-websocket_urlpatterns = [
-    path("ws/canvases/<int:canvas_id>/", CanvasConsumer.as_asgi(), name='canvas-edit'),
 ]
