@@ -6,8 +6,7 @@ from rest_framework import status
 from component.models import Component
 from user.models import User
 from .models import Canvas, CanvasMember
-from .serializers import CanvasSerializer
-
+from .serializers import CanvasSerializer, CanvasPersonalListSerializer
 
 class CanvasCreateView(APIView):
     def post(self, request, *args, **kwargs):
@@ -81,7 +80,6 @@ class MemberInvite(APIView):
                                      'user_email': user.user_name}}, status=status.HTTP_204_NO_CONTENT)
         return Response({'message': '친구 초대에 실패했습니다.',
                                  'result': None}, status=status.HTTP_404_NOT_FOUND)
-
 class CanvasSaveView(APIView):
     def put(self, request, canvas_id):
 
@@ -115,7 +113,24 @@ class CanvasSaveView(APIView):
         except Canvas.DoesNotExist:
             return Response({"message": "캔버스 저장에 실패했습니다.",
                                     "result": None}, status=status.HTTP_404_NOT_FOUND)
+class CanvasPersonalListView(APIView):
+    def get(self, request, user_id):
+        canvases = Canvas.objects.filter(owner_id=user_id)
+        serializer = CanvasPersonalListSerializer(canvases, many=True)
 
+        canvas_list = []
+        for canvas in canvases:
+            canvas_data = {
+                "canvas_id": canvas.id,
+                "canvas_preview_url": canvas.canvas_preview_url,
+                "canvas_name": canvas.canvas_name,
+                "update_at": canvas.updated_at,
+            }
+            canvas_list.append(canvas_data)
 
-
-
+        return Response({
+            "message": "개인 캔버스 전체 조회 성공",
+            "result": {
+                "canvases": canvas_list
+            }
+        }, status=status.HTTP_200_OK)
