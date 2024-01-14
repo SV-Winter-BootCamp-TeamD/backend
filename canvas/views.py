@@ -174,6 +174,7 @@ class CanvasDetailSearchView(APIView):
                     })
 
             response_data = {
+                'canvas_name': canvas.canvas_name,
                 'components': components,
                 'shared_members': shared_members,
             }
