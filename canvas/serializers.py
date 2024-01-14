@@ -6,3 +6,8 @@ class CanvasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Canvas
         fields = '__all__'
+
+class CanvasPersonalListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Canvas
+        fields = ['owner_id']
