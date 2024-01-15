@@ -13,9 +13,10 @@ from .serializers import ComponentSerializer
 from .serializers import TextUploadSerializer
 import random
 from .recommend import search_pixabay_images
+from django.utils import timezone
 
 class BackgroundUploadView(APIView):
-    def post(self, request, canvas_id, *args, **kwargs):
+    def put(self, request, canvas_id, *args, **kwargs):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
             file = request.FILES.get('file')
@@ -32,25 +33,46 @@ class BackgroundUploadView(APIView):
             if not file_url:
                 return Response({"message": "S3 버킷에 파일 업로드 실패"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-            component = Component.objects.create(
-                canvas_id=canvas,
-                component_type=component_type,
-                component_source=component_source,
-                component_url=file_url,
-                position_x=0.0,
-                position_y=0.0
-            )
+            existing_background = Component.objects.filter(canvas_id=canvas, component_type='Background').first()
+
+            if existing_background:
+                existing_background.component_url = file_url
+                existing_background.component_source = component_source
+                existing_background.created_at = timezone.now()
+                existing_background.updated_at = timezone.now()
+                existing_background.save()
+
+            else:
+                component = Component.objects.create(
+                    canvas_id=canvas,
+                    component_type=component_type,
+                    component_source=component_source,
+                    component_url=file_url,
+                    position_x=0.0,
+                    position_y=0.0
+                )
+
+                return Response({
+                    "message": "직접 배경 업로드 성공",
+                    "result": {
+                        "component": {
+                            "component_id": component.id,
+                            "component_type": component_type,
+                            "component_source": component_source
+                        }
+                    }
+                }, status=status.HTTP_201_CREATED)
 
             return Response({
                 "message": "직접 배경 업로드 성공",
                 "result": {
                     "component": {
-                        "component_id": component.id,
+                        "component_id": existing_background.id,
                         "component_type": component_type,
                         "component_source": component_source
                     }
                 }
-            }, status=status.HTTP_201_CREATED)
+            }, status=status.HTTP_200_OK)
         except Canvas.DoesNotExist:
             return Response({
                 "message": "존재하지 않는 캔버스 ID입니다.",
@@ -129,9 +151,8 @@ class BackgroundAIView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
 class BackgroundSelectView(APIView):
-    def post(self, request, canvas_id, *args, **kwargs):
+    def put(self, request, canvas_id, *args, **kwargs):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
             selected_url = request.data.get('selected_url')
@@ -142,25 +163,46 @@ class BackgroundSelectView(APIView):
             component_type = request.data.get('component_type', 'Background')
             component_source = request.data.get('component_source', 'AI')
 
-            component = Component.objects.create(
-                canvas_id=canvas,
-                component_type=component_type,
-                component_source=component_source,
-                component_url=selected_url,
-                position_x=0.0,
-                position_y=0.0
-            )
+            existing_background = Component.objects.filter(canvas_id=canvas, component_type='Background').first()
 
-            return Response({
-                "message": "선택한 AI 배경 업로드 성공",
-                "result": {
-                    "component": {
-                        "component_id": component.id,
-                        "component_type": component_type,
-                        "component_source": component_source
+            if existing_background:
+                existing_background.component_url = selected_url
+                existing_background.component_source = component_source
+                existing_background.created_at = timezone.now()
+                existing_background.updated_at = timezone.now()
+                existing_background.save()
+
+                return Response({
+                    "message": "선택한 AI 배경 업로드 성공",
+                    "result": {
+                        "component": {
+                            "component_id": existing_background.id,
+                            "component_type": component_type,
+                            "component_source": component_source
+                        }
                     }
-                }
-            }, status=status.HTTP_201_CREATED)
+                }, status=status.HTTP_200_OK)
+
+            else:
+                component = Component.objects.create(
+                    canvas_id=canvas,
+                    component_type=component_type,
+                    component_source=component_source,
+                    component_url=selected_url,
+                    position_x=0.0,
+                    position_y=0.0
+                )
+
+                return Response({
+                    "message": "선택한 AI 배경 업로드 성공",
+                    "result": {
+                        "component": {
+                            "component_id": component.id,
+                            "component_type": component_type,
+                            "component_source": component_source
+                        }
+                    }
+                }, status=status.HTTP_201_CREATED)
         except Canvas.DoesNotExist:
             return Response({
                 "message": "존재하지 않는 캔버스 ID입니다.",
