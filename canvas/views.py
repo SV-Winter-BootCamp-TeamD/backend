@@ -189,23 +189,35 @@ class CanvasShareListView(APIView):
             }
         }, status=status.HTTP_200_OK)
 
+
 class CanvasDetailSearchView(APIView):
     def get(self, request, canvas_id):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
-            components = Component.objects.filter(canvas_id=canvas_id).values('id','component_type', 'component_url', 'position_x', 'position_y', 'width', 'height')
+            latest_background = Component.objects.filter(canvas_id=canvas_id, component_type='Background').order_by('-updated_at').first()
+            stickers = Component.objects.filter(canvas_id=canvas_id).exclude(component_type='Background').values('id', 'component_type', 'component_url', 'position_x', 'position_y', 'width', 'height')
 
             response_data = {
                 'canvas_name': canvas.canvas_name,
-                'components': components,
+                'background': {
+                    'id': latest_background.id,
+                    'component_type': latest_background.component_type,
+                    'component_url': latest_background.component_url,
+                    'position_x': latest_background.position_x,
+                    'position_y': latest_background.position_y,
+                    'width': latest_background.width,
+                    'height': latest_background.height,
+                },
+                'sticker': stickers,
             }
 
             return Response({
                 'message': '캔버스 상세 조회 성공했습니다.',
                 'result': response_data
-            },status=status.HTTP_200_OK)
+            }, status=status.HTTP_200_OK)
+
         except Canvas.DoesNotExist:
             return Response({
                 'message': '존재하지 않는 캔버스 ID입니다.',
                 'result': None
-            },status=status.HTTP_404_NOT_FOUND)
+            }, status=status.HTTP_404_NOT_FOUND)
