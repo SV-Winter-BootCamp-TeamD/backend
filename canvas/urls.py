@@ -1,4 +1,3 @@
-
 from django.urls import path, re_path
 from .consumers import CanvasConsumer
 from .views import CanvasCreateView, CanvasUpdateDeleteView, MemberInviteView, CanvasSaveView, CanvasPersonalListView, CanvasShareListView, CanvasDetailSearchView
