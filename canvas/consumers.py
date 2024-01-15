@@ -74,8 +74,8 @@ class CanvasConsumer(AsyncWebsocketConsumer):
                 )
             else:
                 print("해당 유저가 없습니다.")
-                # await self.channel_layer.group_discard(self.canvas_group_id, self.channel_name)
-                # self.close();
+                await self.channel_layer.group_discard(self.canvas_group_id, self.channel_name)
+                self.close();
 
     async def position(self, event):
         user_id = event['user_id']
