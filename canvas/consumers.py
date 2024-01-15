@@ -23,6 +23,9 @@ class CanvasConsumer(AsyncWebsocketConsumer):
         component_id = text_data_json['component_id']
         position_x = text_data_json['position_x']
         position_y = text_data_json['position_y']
+        width = text_data_json['width']
+        height = text_data_json['height']
+
 
         canvas_id = self.scope["url_route"]["kwargs"]["canvas_id"]
 
@@ -44,6 +47,8 @@ class CanvasConsumer(AsyncWebsocketConsumer):
                     'component_id': component_id,
                     'position_x': position_x,
                     'position_y': position_y,
+                    'width': width,
+                    'heigth': height
                 }
             )
         else:
@@ -56,10 +61,14 @@ class CanvasConsumer(AsyncWebsocketConsumer):
         component_id = event['component_id']
         position_x = event['position_x']
         position_y = event['position_y']
+        width = event['width']
+        height = event['height']
 
         await self.send(text_data=json.dumps({
             'user_id': user_id,
             'component_id': component_id,
             'position_x': position_x,
             'position_y': position_y,
+            'width': width,
+            'heigth': height
         }))
