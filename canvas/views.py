@@ -79,6 +79,36 @@ class MemberInviteView(APIView):
                                      'user_email': user.user_name}}, status=status.HTTP_204_NO_CONTENT)
         return Response({'message': '친구 초대에 실패했습니다.',
                                  'result': None}, status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, canvas_id):
+        try:
+            canvas = Canvas.objects.get(id=canvas_id)
+            share_member_list = []
+
+            if CanvasMember.objects.filter(canvas_id=canvas_id).exists():
+                members = CanvasMember.objects.filter(canvas_id=canvas_id).values('member_id', 'created_at', 'updated_at')
+                for member in members:
+                    user = User.objects.get(id=member['member_id'])
+                    share_member_list.append({
+                        'user_id': member['member_id'],
+                        'user_email': user.user_email,
+                        'user_name': user.user_name
+                    })
+
+            response_data = {
+                'shared_members': share_member_list,
+            }
+
+            return Response({
+                'message': '초대 목록 조회 성공',
+                'result': response_data
+            }, status=status.HTTP_200_OK)
+        except Canvas.DoesNotExist:
+            return Response({
+                'message': '존재하지 않는 캔버스 ID입니다.',
+                'result': None
+            }, status=status.HTTP_404_NOT_FOUND)
+
 class CanvasSaveView(APIView):
     def put(self, request, canvas_id):
 
@@ -165,20 +195,9 @@ class CanvasDetailSearchView(APIView):
             canvas = Canvas.objects.get(id=canvas_id)
             components = Component.objects.filter(canvas_id=canvas_id).values('component_url', 'position_x', 'position_y', 'width', 'height')
 
-            shared_members = []
-            if CanvasMember.objects.filter(canvas_id=canvas_id).exists():
-                members = CanvasMember.objects.filter(canvas_id=canvas_id).values('member_id', 'created_at', 'updated_at')
-                for member in members:
-                    user = User.objects.get(id=member['member_id'])
-                    shared_members.append({
-                        'member_id': member['member_id'],
-                        'user_name': user.user_name
-                    })
-
             response_data = {
                 'canvas_name': canvas.canvas_name,
                 'components': components,
-                'shared_members': shared_members,
             }
 
             return Response({
@@ -187,6 +206,6 @@ class CanvasDetailSearchView(APIView):
             },status=status.HTTP_200_OK)
         except Canvas.DoesNotExist:
             return Response({
-                'message': '캔버스 상세 조회 실패했습니다',
+                'message': '존재하지 않는 캔버스 ID입니다.',
                 'result': None
             },status=status.HTTP_404_NOT_FOUND)
