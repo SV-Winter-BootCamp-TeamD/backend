@@ -4,7 +4,6 @@ from rest_framework import status
 from .models import Component
 from canvas.models import Canvas
 from .s3_utils import upload_file_to_s3
-from .AI_utils import generate_image
 import io
 import requests
 import datetime
@@ -13,6 +12,8 @@ from .serializers import ComponentSerializer
 from .serializers import TextUploadSerializer
 import random
 from .recommend import search_pixabay_images
+from .tasks import ai_execute
+from celery.result import AsyncResult
 from django.utils import timezone
 
 class BackgroundUploadView(APIView):
@@ -120,24 +121,24 @@ class BackgroundAIView(APIView):
                 return Response({"message": "색상, 테마, 장소는 모두 필수입니다."}, status=status.HTTP_400_BAD_REQUEST)
 
             prompt = f"{color} 색상으로 {theme} 테마의 {place} 이미지를 생성합니다."
-
             image_type = request.data.get('image_type', 'Background')
             image_count = int(request.data.get('image_count', 3))
 
-            images_urls = generate_image(prompt, image_count, image_type)
-            s3_urls = []
+            task = ai_execute.delay(prompt, image_count, image_type)
+            result = AsyncResult(task.id).get(timeout=1000)
 
-            for image_url in images_urls:
+            s3_urls = []
+            for image_url in result:
                 timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
                 file_name = f"{canvas_id}_{timestamp}.png"
                 key = f"{canvas_id}/background/{file_name}"
                 ExtraArgs = {'ContentType': 'image/jpeg'}
                 file_content = requests.get(image_url).content
-                s3_url = upload_file_to_s3(io.BytesIO(file_content), key , ExtraArgs)
+                s3_url = upload_file_to_s3(io.BytesIO(file_content), key, ExtraArgs)
                 s3_urls.append(s3_url)
 
             return Response({
-                "message": "AI 배경 3개 생성 및 S3 버킷 업로드 성공",
+                "message": "AI 배경 생성 및 S3 버킷 업로드 성공",
                 "canvas_id": canvas_id,
                 "result": {
                     "s3_urls": s3_urls
@@ -222,16 +223,15 @@ class StickerAIView(APIView):
                 return Response({"message": "스티커 묘사, 스타일은 모두 필수입니다."}, status=status.HTTP_400_BAD_REQUEST)
 
             prompt = f"{style} 스타일로 {describe} 이미지를 생성합니다."
-
             image_type = request.data.get('image_type', 'Sticker')
             image_count = int(request.data.get('image_count', 4))
 
-            images_urls = generate_image(prompt, image_count, image_type)
+            task = ai_execute.delay(prompt, image_count, image_type)
+            result = AsyncResult(task.id).get(timeout=1000)
+
             s3_urls = []
-
-            for image_url in images_urls:
+            for image_url in result:
                 processed_image_url = remove_background(image_url)
-
                 timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S%f")
                 file_name = f"{canvas_id}_{timestamp}.png"
                 key = f"{canvas_id}/sticker/{file_name}"
@@ -240,7 +240,7 @@ class StickerAIView(APIView):
                 s3_urls.append(s3_url)
 
             return Response({
-                "message": "AI 스티커 4개 생성 및 S3 버킷 업로드 성공",
+                "message": "AI 스티커 생성 및 S3 버킷 업로드 성공",
                 "canvas_id": canvas_id,
                 "result": {
                     "s3_urls": s3_urls

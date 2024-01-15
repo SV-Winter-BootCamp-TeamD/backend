@@ -18,6 +18,9 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
 
+CELERY_BROKER_URL = 'amqp://rabbitmq:5672/'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
