@@ -6,8 +6,6 @@ django-cors-headers==4.3.1
 requests~=2.31.0
 boto3~=1.28.1
 openai~=1.7.1
-opencv-python~=4.9.0.80
-numpy~=1.26.3
 pillow~=10.2.0
 rembg~=2.0.53
 daphne~=4.0.0
