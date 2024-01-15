@@ -10,6 +10,13 @@ services:
     networks:
       - teamd
 
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    networks:
+      - teamd
+
   backend:
     build:
       context: .
@@ -30,12 +37,29 @@ services:
     networks:
       - teamd
 
-  redis:
-    image: "redis:latest"
+  rabbitmq:
+    image: "rabbitmq:3-management"
     ports:
-      - "6379:6379"
+      - "5672:5672"
+      - "15672:15672"
+    depends_on:
+      - backend
     networks:
-          - teamd
+      - teamd
+
+  celery:
+    container_name: celery
+    build:
+      context: .
+    command: "celery -A backend.celery worker --loglevel=info --pool=solo"
+    depends_on:
+      - backend
+      - rabbitmq
+    volumes:
+      - .:/app
+    networks:
+      - teamd
+
 networks:
   teamd:
     driver: bridge
