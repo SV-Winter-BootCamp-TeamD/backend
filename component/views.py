@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,12 +10,17 @@ import io
 import requests
 import datetime
 from .nukki import remove_background
-from .serializers import ComponentSerializer
+from .serializers import ComponentSerializer, BackgroundUploadSwaggerSerializer, SelectSwaggerSerializer, BackgroundSwaggerSerializer, BackgroundAISwaggerSerializer, AIResponseSwaggerSerializer, StickerAISwaggerSerializer, BackgroundRecommendSwaggerSerializer, TextResponseSwaggerSerializer
 from .serializers import TextUploadSerializer
 import random
 from .recommend import search_pixabay_images
 
 class BackgroundUploadView(APIView):
+    @swagger_auto_schema(
+        request_body=BackgroundUploadSwaggerSerializer,
+        operation_id="직접 배경 업로드",
+        responses={200: BackgroundSwaggerSerializer(many=False)}
+    )
     def post(self, request, canvas_id, *args, **kwargs):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
@@ -57,6 +63,10 @@ class BackgroundUploadView(APIView):
                 "result": None
             }, status=status.HTTP_404_NOT_FOUND)
 
+    @swagger_auto_schema(
+        operation_id= "직접 업로드 배경 조회",
+        responses={200: ComponentSerializer(many=True)}
+    )
     def get(self, request, canvas_id, *args, **kwargs):
         try:
             canvas_exists = Canvas.objects.filter(id=canvas_id).exists()
@@ -87,6 +97,11 @@ class BackgroundUploadView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BackgroundAIView(APIView):
+    @swagger_auto_schema(
+        request_body=BackgroundAISwaggerSerializer,
+        operation_id="AI 배경 생성",
+        responses={200: AIResponseSwaggerSerializer(many=False)}
+    )
     def post(self, request, canvas_id, *args, **kwargs):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
@@ -131,6 +146,11 @@ class BackgroundAIView(APIView):
 
 
 class BackgroundSelectView(APIView):
+    @swagger_auto_schema(
+        request_body=SelectSwaggerSerializer,
+        operation_id="선택한 AI 배경 업로드",
+        responses={200: BackgroundSwaggerSerializer(many=False)}
+    )
     def post(self, request, canvas_id, *args, **kwargs):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
@@ -170,6 +190,11 @@ class BackgroundSelectView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class StickerAIView(APIView):
+    @swagger_auto_schema(
+        request_body=StickerAISwaggerSerializer,
+        operation_id="AI 스티커 생성",
+        responses={200: AIResponseSwaggerSerializer(many=False)}
+    )
     def post(self, request, canvas_id, *args, **kwargs):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
@@ -213,6 +238,11 @@ class StickerAIView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class StickerSelectView(APIView):
+    @swagger_auto_schema(
+        request_body=SelectSwaggerSerializer,
+        operation_id="선택한 AI 스티커 업로드",
+        responses={200: BackgroundSwaggerSerializer(many=False)}
+    )
     def post(self, request, canvas_id, *args, **kwargs):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
@@ -251,6 +281,10 @@ class StickerSelectView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @swagger_auto_schema(
+        operation_id="선택한 AI 스티커 업로드(히스토리)",
+        responses={200: BackgroundSwaggerSerializer(many=False)}
+    )
     def get(self, request, canvas_id, *args, **kwargs):
         try:
             canvas_exists = Canvas.objects.filter(id=canvas_id).exists()
@@ -282,6 +316,11 @@ class StickerSelectView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class TextUploadView(APIView):
+    @swagger_auto_schema(
+        request_body=TextUploadSerializer,
+        operation_id="직접 텍스트 업로드",
+        responses={200: TextResponseSwaggerSerializer(many=False)}
+    )
     def post(self, request, canvas_id, *args, **kwargs):
 
         try:
@@ -320,6 +359,10 @@ class TextUploadView(APIView):
                          }, status=status.HTTP_404_NOT_FOUND)
 
 class ComponentDeleteView(APIView):
+    @swagger_auto_schema(
+        operation_id="요소(배경, 스티커) 삭제",
+        responses={200: "요소 삭제 성공", 404: "요소 삭제에 실패했습니다."}
+    )
     def delete(self, request, component_id, *args, **kwargs):
 
         try:
@@ -332,6 +375,10 @@ class ComponentDeleteView(APIView):
                              "result": None}, status=status.HTTP_404_NOT_FOUND)
 
 class BackgroundRecommendView(APIView):
+    @swagger_auto_schema(
+        operation_id="배경 추천",
+        responses={200: BackgroundRecommendSwaggerSerializer(many=False)}
+    )
     def get(self, request, *args, **kwargs):
         images_urls = []
         all_keywords = ['nature', 'city', 'ocean', 'forest', 'mountains', 'animals', 'space',

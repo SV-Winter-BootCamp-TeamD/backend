@@ -1,14 +1,19 @@
 from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-
 from component.models import Component
 from user.models import User
 from .models import Canvas, CanvasMember
-from .serializers import CanvasSerializer
+from .serializers import CanvasSerializer, CanvasCreateSwaggerSerializer, CanvasUpdateDeleteSwaggerSerializer, MemberInviteSwaggerSerializer, CanvasSaveSwaggerSerializer, CanvasListSwaggerSerializer, ComponentSwaggerSerializer
 
 class CanvasCreateView(APIView):
+    @swagger_auto_schema(
+        request_body=CanvasCreateSwaggerSerializer,
+        operation_id="캔버스 생성",
+        responses={200: "캔버스 생성 성공", 404: "캔버스 생성에 실패했습니다."}
+    )
     def post(self, request, *args, **kwargs):
         serializer = CanvasSerializer(data=request.data)
 
@@ -22,7 +27,11 @@ class CanvasCreateView(APIView):
         return Response({"message": "캔버스 생성 실패했습니다."}, status = status.HTTP_404_NOT_FOUND)
 
 class CanvasUpdateDeleteView(APIView):
-
+    @swagger_auto_schema(
+        request_body=CanvasUpdateDeleteSwaggerSerializer,
+        operation_id="캔버스 이름 변경/삭제",
+        responses={200: "캔버스 삭제 성공", 404: "캔버스 삭제에 실패했습니다."}
+    )
     def put(self, request, canvas_id, *args, **kwargs):
         canvas_name= request.data.get("canvas_name")
 
@@ -35,6 +44,11 @@ class CanvasUpdateDeleteView(APIView):
         except Canvas.DoesNotExist:
             return Response({"message": "캔버스 이름 수정 실패하였습니다."},status = status.HTTP_404_NOT_FOUND)
 
+    @swagger_auto_schema(
+        request_body=CanvasUpdateDeleteSwaggerSerializer,
+        operation_id="캔버스 이름 변경/삭제",
+        responses={200: "캔버스 이름 변경 성공", 404: "캔버스 이름 변경 실패했습니다."}
+    )
     def delete(self, request, canvas_id, *args, **kwargs):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
@@ -45,7 +59,11 @@ class CanvasUpdateDeleteView(APIView):
             return Response({"message": "캔버스 삭제 실패하였습니다."},status = status.HTTP_404_NOT_FOUND)
 
 class MemberInviteView(APIView):
-
+    @swagger_auto_schema(
+        request_body=MemberInviteSwaggerSerializer,
+        operation_id="친구 초대",
+        responses={200: MemberInviteSwaggerSerializer(many=False)}
+    )
     def post(self, request, canvas_id):
 
         user_email = request.data.get('user_email')
@@ -80,6 +98,11 @@ class MemberInviteView(APIView):
         return Response({'message': '친구 초대에 실패했습니다.',
                                  'result': None}, status=status.HTTP_404_NOT_FOUND)
 class CanvasSaveView(APIView):
+    @swagger_auto_schema(
+        request_body=CanvasSaveSwaggerSerializer,
+        operation_id="캔버스 저장",
+        responses={200: CanvasSaveSwaggerSerializer(many=False)}
+    )
     def put(self, request, canvas_id):
 
         components = request.data.get('components', [])
@@ -117,6 +140,10 @@ class CanvasSaveView(APIView):
             return Response({"message": "캔버스 저장에 실패했습니다.",
                                     "result": None}, status=status.HTTP_404_NOT_FOUND)
 class CanvasPersonalListView(APIView):
+    @swagger_auto_schema(
+        operation_id="개인 캔버스 전체 조회",
+        responses={200: CanvasListSwaggerSerializer(many=False)}
+    )
     def get(self, request, user_id):
         canvases = Canvas.objects.filter(owner_id=user_id)
 
@@ -138,6 +165,10 @@ class CanvasPersonalListView(APIView):
         }, status=status.HTTP_200_OK)
 
 class CanvasShareListView(APIView):
+    @swagger_auto_schema(
+        operation_id="공유 캔버스 전체 조회",
+        responses={200: CanvasListSwaggerSerializer(many=False)}
+    )
     def get(self, request, user_id):
         canvases = CanvasMember.objects.filter(member_id=user_id).values_list('canvas_id', flat=True)
         shared_canvases = Canvas.objects.filter(id__in=canvases)
@@ -160,6 +191,10 @@ class CanvasShareListView(APIView):
         }, status=status.HTTP_200_OK)
 
 class CanvasDetailSearchView(APIView):
+    @swagger_auto_schema(
+        operation_id="캔버스 상세 조회",
+        responses={200: ComponentSwaggerSerializer(many=False)}
+    )
     def get(self, request, canvas_id):
         try:
             canvas = Canvas.objects.get(id=canvas_id)

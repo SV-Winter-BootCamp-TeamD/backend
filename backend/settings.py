@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "user",
     "canvas",
-    "component"
+    "component",
+    "drf_yasg"
 ]
 
 MIDDLEWARE = [

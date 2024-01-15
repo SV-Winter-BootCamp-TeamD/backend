@@ -13,3 +13,4 @@ rembg~=2.0.53
 daphne~=4.0.0
 channels~=4.0.0
 channels-redis~=4.0.0
+drf-yasg~=1.21.7
