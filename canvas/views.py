@@ -98,6 +98,10 @@ class MemberInviteView(APIView):
         return Response({'message': '친구 초대에 실패했습니다.',
                                  'result': None}, status=status.HTTP_404_NOT_FOUND)
 
+    @swagger_auto_schema(
+        operation_id="친구 초대",
+        responses={200: MemberInviteSwaggerSerializer(many=False)}
+    )
     def get(self, request, canvas_id):
         try:
             canvas = Canvas.objects.get(id=canvas_id)

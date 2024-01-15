@@ -22,12 +22,15 @@ class CanvasUpdateDeleteSwaggerSerializer(serializers.ModelSerializer):
 class MemberInviteSwaggerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['user_email']
+        fields = ['id','user_email','user_name']
 
 class ComponentSwaggerSerializer(serializers.Serializer):
+    canvas_name = serializers.CharField()
     component_id = serializers.IntegerField()
     position_x = serializers.FloatField()
     position_y = serializers.FloatField()
+    component_type = serializers.CharField()
+    component_url = serializers.CharField()
     width = serializers.FloatField()
     height = serializers.FloatField()
 
