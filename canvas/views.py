@@ -193,7 +193,7 @@ class CanvasDetailSearchView(APIView):
     def get(self, request, canvas_id):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
-            components = Component.objects.filter(canvas_id=canvas_id).values('component_type', 'component_url', 'position_x', 'position_y', 'width', 'height')
+            components = Component.objects.filter(canvas_id=canvas_id).values('id','component_type', 'component_url', 'position_x', 'position_y', 'width', 'height')
 
             response_data = {
                 'canvas_name': canvas.canvas_name,
