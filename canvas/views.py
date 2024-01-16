@@ -23,7 +23,7 @@ class CanvasCreateView(APIView):
                     "message": "캔버스 생성 성공하였습니다.",
                     "canvas_name":serializer.data["canvas_name"],
                     "canvas_id": canvas.id
-                }, status = status.HTTP_201_CREATED)
+                }, status = status.HTTP_200_OK)
         return Response({"message": "캔버스 생성 실패했습니다."}, status = status.HTTP_404_NOT_FOUND)
 
 class CanvasUpdateDeleteView(APIView):
@@ -94,7 +94,7 @@ class MemberInviteView(APIView):
 
             return Response({'message': "친구 초대 성공",
                                  'result': {
-                                     'user_email': user.user_name}}, status=status.HTTP_204_NO_CONTENT)
+                                     'user_email': user.user_name}}, status=status.HTTP_200_OK)
         return Response({'message': '친구 초대에 실패했습니다.',
                                  'result': None}, status=status.HTTP_404_NOT_FOUND)
 
@@ -171,7 +171,7 @@ class CanvasSaveView(APIView):
             canvas = Canvas.objects.get(pk=canvas_id)
             canvas.canvas_preview_url = canvas_preview_url
             canvas.save()
-            return Response({"message": "캔버스 저장 성공"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "캔버스 저장 성공"}, status=status.HTTP_200_OK)
         except Canvas.DoesNotExist:
             return Response({"message": "캔버스 저장에 실패했습니다.",
                                     "result": None}, status=status.HTTP_404_NOT_FOUND)

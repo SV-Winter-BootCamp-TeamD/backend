@@ -372,7 +372,7 @@ class TextUploadView(APIView):
                                             "component_url": TextComponent.component_url
                                             }
                                         }
-                                    }, status=status.HTTP_204_NO_CONTENT)
+                                    }, status=status.HTTP_200_OK)
 
         return Response({"message": "텍스트 업로드에 실패했습니다.",
                                 "result": None
@@ -388,7 +388,7 @@ class ComponentDeleteView(APIView):
         try:
             component = Component.objects.get(id=component_id)
             component.delete()
-            return Response({"message": "요소 삭제 성공"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "요소 삭제 성공"}, status=status.HTTP_200_OK)
 
         except Component.DoesNotExist:
             return Response({"message": "요소 삭제에 실패했습니다.",
