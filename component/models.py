@@ -9,7 +9,8 @@ class Component(models.Model):
     ]
     COMPONENT_SOURCE_CHOICES = [
         ('Upload', 'Upload'),
-        ('AI', 'AI')
+        ('AI', 'AI'),
+        ('Recommend', 'Recommend')
     ]
 
     canvas_id = models.ForeignKey(Canvas, on_delete=models.CASCADE)
