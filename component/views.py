@@ -131,6 +131,8 @@ class BackgroundAIView(APIView):
                 s3_url = upload_file_to_s3(io.BytesIO(file_content), key, ExtraArgs)
                 s3_urls.append(s3_url)
 
+            request.session[f'ai_background_urls_{canvas_id}'] = s3_urls
+
             return Response({
                 "message": "AI 배경 생성 및 S3 버킷 업로드 성공",
                 "canvas_id": canvas_id,
@@ -143,6 +145,23 @@ class BackgroundAIView(APIView):
                 "message": "존재하지 않는 캔버스 ID입니다.",
                 "result": None
             }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def get(self, request, canvas_id, *args, **kwargs):
+        try:
+            background_urls = request.session.get(f'ai_background_urls_{canvas_id}', [])
+
+            if not background_urls:
+                return Response({
+                    "message": "생성된 AI 배경이 없습니다."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            return Response({
+                "message": "AI 생성한 배경 조회 성공",
+                "s3_urls": background_urls
+            }, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
