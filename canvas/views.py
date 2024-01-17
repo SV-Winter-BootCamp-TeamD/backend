@@ -176,7 +176,7 @@ class CanvasSaveView(APIView):
             if not canvas_preview_url:
                 return Response({"message": "업로드할 파일이 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
-            key = f"{canvas_id}/preview/{canvas_preview_url.name}"
+            key = f"preview/{canvas_id}"
             ExtraArgs = {'ContentType': canvas_preview_url.content_type}
             file_url = upload_file_to_s3(canvas_preview_url, key, ExtraArgs)
 
