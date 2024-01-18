@@ -22,7 +22,8 @@ class CanvasConsumer(AsyncWebsocketConsumer):
         canvas_id = self.scope["url_route"]["kwargs"]["canvas_id"]
 
         ## 유저 인증 로직
-        users = []
+        canvas = Canvas.objects.get(id=canvas_id)
+        users = [canvas.owner_id]
         canvasmembers = CanvasMember.objects.filter(canvas_id=canvas_id)
 
         for canvasmember in canvasmembers:
@@ -35,7 +36,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
             position_x = text_data_json['position_x']
             position_y = text_data_json['position_y']
 
-            if user_id in users:
+            if int(user_id) in users:
                 print("유저 확인 완료")
                 await self.channel_layer.group_send(
                     self.canvas_group_id,
@@ -59,7 +60,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
             width = text_data_json['width']
             height = text_data_json['height']
 
-            if user_id in users:
+            if int(user_id) in users:
                 print("유저 확인 완료")
                 await self.channel_layer.group_send(
                     self.canvas_group_id,

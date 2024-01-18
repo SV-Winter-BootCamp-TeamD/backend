@@ -22,12 +22,6 @@ class CanvasCreateView(APIView):
         if serializer.is_valid():
             canvas=serializer.save()
 
-            canvasMember=CanvasMember(canvas_id=canvas,
-                                      member_id=canvas.owner_id,
-                                      created_at=timezone.now(),
-                                      updated_at=timezone.now())
-            canvasMember.save()
-
             return Response({
                     "message": "캔버스 생성 성공하였습니다.",
                     "canvas_name":serializer.data["canvas_name"],
