@@ -22,8 +22,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
         canvas_id = self.scope["url_route"]["kwargs"]["canvas_id"]
 
         ## 유저 인증 로직
-        canvas = Canvas.objects.get(id=canvas_id)
-        users = [canvas.owner_id]
+        users = []
         canvasmembers = CanvasMember.objects.filter(canvas_id=canvas_id)
 
         for canvasmember in canvasmembers:
