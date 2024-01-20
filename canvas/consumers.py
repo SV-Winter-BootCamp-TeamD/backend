@@ -77,6 +77,28 @@ class CanvasConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_discard(self.canvas_group_id, self.channel_name)
                 self.close();
 
+        elif text_data_json.get("type") == "rotate":
+
+            user_id = text_data_json['user_id']
+            component_id = text_data_json['component_id']
+            rotate = text_data_json['rotate']
+
+            if int(user_id) in users:
+                print("유저 확인 완료")
+                await self.channel_layer.group_send(
+                    self.canvas_group_id,
+                    {
+                        'type': 'resize',
+                        'user_id': user_id,
+                        'component_id': component_id,
+                        'rotate': rotate
+                    }
+                )
+            else:
+                print("해당 유저가 없습니다.")
+                await self.channel_layer.group_discard(self.canvas_group_id, self.channel_name)
+                self.close();
+
     async def position(self, event):
         user_id = event['user_id']
         component_id = event['component_id']
@@ -103,4 +125,16 @@ class CanvasConsumer(AsyncWebsocketConsumer):
             'component_id': component_id,
             'width': width,
             'height': height,
+        }))
+
+    async def rotate(self, event):
+        user_id = event['user_id']
+        component_id = event['component_id']
+        rotate = event['rotate']
+
+        await self.send(text_data=json.dumps({
+            'type': 'rotate',
+            'user_id': user_id
+            'component_id': component_id,
+            'rotate': rotate
         }))
