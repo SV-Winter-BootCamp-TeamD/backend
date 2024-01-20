@@ -150,6 +150,7 @@ class CanvasSaveView(APIView):
             position_y = component_data.get('position_y')
             width = component_data.get('width')
             height = component_data.get('height')
+            rotate = component_data.get('rotate')
             component_url = component_data.get('component_url')
 
             try:
@@ -161,6 +162,7 @@ class CanvasSaveView(APIView):
                 component.position_y = position_y
                 component.width = width
                 component.height = height
+                component.rotate = rotate
                 component.component_url = component_url
                 component.save()
 
