@@ -21,6 +21,7 @@ class Component(models.Model):
     position_y = models.FloatField()
     width = models.IntegerField(default=100)
     height = models.IntegerField(default=100)
+    rotate = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
