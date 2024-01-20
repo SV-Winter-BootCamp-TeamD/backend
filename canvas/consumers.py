@@ -134,7 +134,8 @@ class CanvasConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=json.dumps({
             'type': 'rotate',
-            'user_id': user_id
+            'user_id': user_id,
             'component_id': component_id,
             'rotate': rotate
         }))
+
