@@ -88,7 +88,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_send(
                     self.canvas_group_id,
                     {
-                        'type': 'resize',
+                        'type': 'rotate',
                         'user_id': user_id,
                         'component_id': component_id,
                         'rotate': rotate
