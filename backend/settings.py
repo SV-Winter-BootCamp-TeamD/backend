@@ -24,7 +24,7 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379/'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "0.0.0.0"]
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "backend"]
 
 CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
 
@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     "user",
     "canvas",
     "component",
-    "drf_yasg"
+    "drf_yasg",
+    "django_prometheus"
 ]
 
 MIDDLEWARE = [
@@ -54,6 +55,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"
