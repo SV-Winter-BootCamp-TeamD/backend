@@ -29,75 +29,80 @@ class CanvasConsumer(AsyncWebsocketConsumer):
         for canvasmember in canvasmembers:
             users.append(canvasmember.member_id)
 
-        if text_data_json.get("type") == "position":
+        user_id = text_data_json['user_id']
+        component_id = text_data_json['component_id']
 
-            user_id = text_data_json['user_id']
-            component_id = text_data_json['component_id']
+        if int(user_id) not in users:
+            print("해당 유저가 없습니다.")
+            await self.channel_layer.group_discard(self.canvas_group_id, self.channel_name)
+            self.close();
+
+        if text_data_json.get("type") == "position":
             position_x = text_data_json['position_x']
             position_y = text_data_json['position_y']
 
-            if int(user_id) in users:
-                print("유저 확인 완료")
-                await self.channel_layer.group_send(
-                    self.canvas_group_id,
-                    {
-                        'type': 'position',
-                        'user_id': user_id,
-                        'component_id': component_id,
-                        'position_x': position_x,
-                        'position_y': position_y,
-                    }
-                )
-            else:
-                print("해당 유저가 없습니다.")
-                await self.channel_layer.group_discard(self.canvas_group_id, self.channel_name)
-                self.close();
+            await self.channel_layer.group_send(
+                self.canvas_group_id,
+                {
+                    'type': 'position',
+                    'user_id': user_id,
+                    'component_id': component_id,
+                    'position_x': position_x,
+                    'position_y': position_y
+                }
+            )
 
         elif text_data_json.get("type") == "resize":
-
-            user_id = text_data_json['user_id']
-            component_id = text_data_json['component_id']
             width = text_data_json['width']
             height = text_data_json['height']
 
-            if int(user_id) in users:
-                print("유저 확인 완료")
-                await self.channel_layer.group_send(
-                    self.canvas_group_id,
-                    {
-                        'type': 'resize',
-                        'user_id': user_id,
-                        'component_id': component_id,
-                        'width': width,
-                        'height': height,
-                    }
-                )
-            else:
-                print("해당 유저가 없습니다.")
-                await self.channel_layer.group_discard(self.canvas_group_id, self.channel_name)
-                self.close();
+            await self.channel_layer.group_send(
+                self.canvas_group_id,
+                {
+                    'type': 'resize',
+                    'user_id': user_id,
+                    'component_id': component_id,
+                    'width': width,
+                    'height': height
+                }
+            )
 
         elif text_data_json.get("type") == "rotate":
-
-            user_id = text_data_json['user_id']
-            component_id = text_data_json['component_id']
             rotate = text_data_json['rotate']
 
-            if int(user_id) in users:
-                print("유저 확인 완료")
-                await self.channel_layer.group_send(
-                    self.canvas_group_id,
-                    {
-                        'type': 'rotate',
-                        'user_id': user_id,
-                        'component_id': component_id,
-                        'rotate': rotate
-                    }
-                )
-            else:
-                print("해당 유저가 없습니다.")
-                await self.channel_layer.group_discard(self.canvas_group_id, self.channel_name)
-                self.close();
+            await self.channel_layer.group_send(
+                self.canvas_group_id,
+                {
+                    'type': 'rotate',
+                    'user_id': user_id,
+                    'component_id': component_id,
+                    'rotate': rotate
+                }
+            )
+
+        elif text_data_json.get("type") == "add":
+            component_url = text_data_json['component_url']
+
+            await self.channel_layer.group_send(
+                self.canvas_group_id,
+                {
+                    'type': 'add',
+                    'user_id': user_id,
+                    'component_id': component_id,
+                    'component_url': component_url
+                }
+            )
+
+        elif text_data_json.get("type") == "remove":
+
+            await self.channel_layer.group_send(
+                self.canvas_group_id,
+                {
+                    'type': 'remove',
+                    'user_id': user_id,
+                    'component_id': component_id
+                }
+            )
 
     async def position(self, event):
         user_id = event['user_id']
@@ -110,7 +115,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
             'user_id': user_id,
             'component_id': component_id,
             'position_x': position_x,
-            'position_y': position_y,
+            'position_y': position_y
         }))
 
     async def resize(self, event):
@@ -124,7 +129,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
             'user_id': user_id,
             'component_id': component_id,
             'width': width,
-            'height': height,
+            'height': height
         }))
 
     async def rotate(self, event):
@@ -139,3 +144,24 @@ class CanvasConsumer(AsyncWebsocketConsumer):
             'rotate': rotate
         }))
 
+    async def add(self, event):
+        user_id = event['user_id']
+        component_id = event['component_id']
+        component_url = event['component_url']
+
+        await self.send(text_data=json.dumps({
+            'type': 'add',
+            'user_id': user_id,
+            'component_id': component_id,
+            'component_url': component_url
+        }))
+
+    async def remove(self, event):
+        user_id = event['user_id']
+        component_id = event['component_id']
+
+        await self.send(text_data=json.dumps({
+            'type': 'remove',
+            'user_id': user_id,
+            'component_id': component_id
+        }))
