@@ -82,6 +82,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
 
         elif text_data_json.get("type") == "add":
             component_url = text_data_json['component_url']
+            component_type = text_data_json['component_type']
 
             await self.channel_layer.group_send(
                 self.canvas_group_id,
@@ -89,7 +90,8 @@ class CanvasConsumer(AsyncWebsocketConsumer):
                     'type': 'add',
                     'user_id': user_id,
                     'component_id': component_id,
-                    'component_url': component_url
+                    'component_url': component_url,
+                    'component_type': component_type
                 }
             )
 
@@ -148,12 +150,14 @@ class CanvasConsumer(AsyncWebsocketConsumer):
         user_id = event['user_id']
         component_id = event['component_id']
         component_url = event['component_url']
+        component_type = event['component_type']
 
         await self.send(text_data=json.dumps({
             'type': 'add',
             'user_id': user_id,
             'component_id': component_id,
-            'component_url': component_url
+            'component_url': component_url,
+            'component_type': component_type
         }))
 
     async def remove(self, event):
