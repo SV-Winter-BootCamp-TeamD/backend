@@ -48,7 +48,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
                     'user_id': user_id,
                     'component_id': component_id,
                     'position_x': position_x,
-                    'position_y': position_y,
+                    'position_y': position_y
                 }
             )
 
@@ -63,7 +63,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
                     'user_id': user_id,
                     'component_id': component_id,
                     'width': width,
-                    'height': height,
+                    'height': height
                 }
             )
 
@@ -100,7 +100,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
                 {
                     'type': 'remove',
                     'user_id': user_id,
-                    'component_id': component_id,
+                    'component_id': component_id
                 }
             )
 
@@ -163,5 +163,5 @@ class CanvasConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'remove',
             'user_id': user_id,
-            'component_id': component_id,
+            'component_id': component_id
         }))
