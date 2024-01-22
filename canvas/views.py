@@ -258,13 +258,12 @@ class CanvasDetailSearchView(APIView):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
             latest_background = Component.objects.filter(canvas_id=canvas_id, component_type='Background').order_by('-updated_at').first()
-            stickers = Component.objects.filter(canvas_id=canvas_id).exclude(component_type='Background').values('id', 'component_type', 'component_url', 'position_x', 'position_y', 'width', 'height')
+            stickers = Component.objects.filter(canvas_id=canvas_id).exclude(component_type='Background').values('id', 'component_url', 'position_x', 'position_y', 'width', 'height')
 
             response_data = {
                 'canvas_name': canvas.canvas_name,
                 'background': {
                     'id': latest_background.id,
-                    'component_type': latest_background.component_type,
                     'component_url': latest_background.component_url,
                     'position_x': latest_background.position_x,
                     'position_y': latest_background.position_y,
