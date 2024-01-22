@@ -144,6 +144,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, '_static')
+
+MEDIA_URL = '/mediafiles/'
+# 미디어 파일이 업로드될 디렉토리
+MEDIA_ROOT = os.path.join(BASE_DIR, '_media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
