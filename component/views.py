@@ -148,6 +148,10 @@ class BackgroundAIView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @swagger_auto_schema(
+        operation_id="AI 생성한 배경 조회",
+        responses={200: AIResponseSwaggerSerializer(many=False)}
+    )
     def get(self, request, canvas_id, *args, **kwargs):
         try:
             background_urls = request.session.get(f'ai_background_urls_{canvas_id}', [])
@@ -424,6 +428,11 @@ class BackgroundRecommendView(APIView):
                 "result": None
             }, status=status.HTTP_404_NOT_FOUND)
 
+    @swagger_auto_schema(
+        request_body=SelectSwaggerSerializer,
+        operation_id="선택한 배경추천 업로드",
+        responses={200: AIResponseSwaggerSerializer(many=False)}
+    )
     def post(self, request, canvas_id, *args, **kwargs):
         try:
             canvas = Canvas.objects.get(id=canvas_id)
