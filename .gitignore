@@ -235,4 +235,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # alertmanager slack website
-./alertmanager/config.yml
+alertmanager/config.yml
