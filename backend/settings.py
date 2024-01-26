@@ -1,22 +1,28 @@
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+import environ
+import pymysql
 
-# .env 파일 로드
-load_dotenv()
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-PIXABAY_API_KEY = os.getenv('PIXABAY_API_KEY')
+# Django Environ
+env = environ.Env(DEBUG=(bool, True))
+environ.Env.read_env(
+    env_file=os.path.join(BASE_DIR, '.env')
+)
 
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env('SECRET_KEY')
+OPENAI_API_KEY = env('OPENAI_API_KEY')
+PIXABAY_API_KEY = env('PIXABAY_API_KEY')
+
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
 
 CELERY_BROKER_URL = 'amqp://rabbitmq:5672/'
 CELERY_RESULT_BACKEND = 'redis://redis:6379/'
@@ -97,11 +103,14 @@ os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"  # consumers 비동기 함수 �
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('MYSQL_DATABASE'),
-        'USER': os.getenv('MYSQL_USER'),
-        'PASSWORD': os.getenv('MYSQL_PASSWORD'),
-        'HOST': os.getenv('MYSQL_HOST'), # .env 파일에서 MYSQL_HOST 추가 필요
-        'PORT': os.getenv('MYSQL_PORT'), # .env 파일에서 MYSQL_PORT 추가 필요
+        'NAME': env('DATABASE_NAME'),
+        'USER': env('DATABASE_USERNAME'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
+        'HOST': env('DATABASE_HOST'),
+        'PORT': env('DATABASE_PORT'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
