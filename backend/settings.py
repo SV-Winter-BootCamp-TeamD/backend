@@ -32,7 +32,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "0.0.0.0", "backend", "decozoom.site"]
 
-CORS_ALLOWED_ORIGINS = ["*"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:5173", "http://decozoom.site:5173", "http://decozoom.site:3000"]
 
 # Application definition
 
