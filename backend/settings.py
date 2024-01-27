@@ -30,9 +30,9 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379/'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "backend"]
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "backend", "decozoom.site"]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORS_ALLOWED_ORIGINS = ["*"]
 
 # Application definition
 
