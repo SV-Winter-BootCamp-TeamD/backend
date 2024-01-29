@@ -22,6 +22,8 @@ class Component(models.Model):
     width = models.IntegerField(default=100)
     height = models.IntegerField(default=100)
     rotate = models.IntegerField(default=0)
+    beforeTranslate_x = models.IntegerField(default=0)
+    beforeTranslate_y = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
