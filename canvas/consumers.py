@@ -56,8 +56,6 @@ class CanvasConsumer(AsyncWebsocketConsumer):
             width = text_data_json['width']
             height = text_data_json['height']
             rotate = text_data_json.get('rotate', 0)
-            beforeTranslate_x = text_data_json['beforeTranslate_x']
-            beforeTranslate_y = text_data_json['beforeTranslate_y']
 
             await self.channel_layer.group_send(
                 self.canvas_group_id,
@@ -67,9 +65,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
                     'component_id': component_id,
                     'width': width,
                     'height': height,
-                    'rotate': rotate,
-                    'beforeTranslate_x': beforeTranslate_x,
-                    'beforeTranslate_y': beforeTranslate_y
+                    'rotate': rotate
                 }
             )
 
@@ -132,8 +128,6 @@ class CanvasConsumer(AsyncWebsocketConsumer):
         width = event['width']
         height = event['height']
         rotate = event['rotate']
-        beforeTranslate_x = event['beforeTranslate_x']
-        beforeTranslate_y = event['beforeTranslate_y']
 
         await self.send(text_data=json.dumps({
             'type': 'resize',
@@ -141,9 +135,7 @@ class CanvasConsumer(AsyncWebsocketConsumer):
             'component_id': component_id,
             'width': width,
             'height': height,
-            'rotate': rotate,
-            'beforeTranslate_x': beforeTranslate_x,
-            'beforeTranslate_y': beforeTranslate_y
+            'rotate': rotate
         }))
 
     async def rotate(self, event):
